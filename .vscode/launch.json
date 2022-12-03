@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+     {
+        "name": "C/C++: g++.exe build and debug active file",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}\\build\\day01.exe",
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "targetArchitecture": "x64",
+        "MIMode": "gdb",
+        "miDebuggerPath": "C:\\mingw-w64\\mingw64\\bin\\gdb.exe"
+    },
+    ]
+}
