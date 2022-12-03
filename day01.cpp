@@ -13,8 +13,9 @@ void printCalories(std::vector<std::list<int>>& aTotal) {
     }
 }
 
-int main(){
+int main() {
     std::cout << "Start" << std::endl;
+    // Part 1
     std::ifstream f;
     //f.open("inputs/d1p1_ex.txt");
     f.open("inputs/d1p1.txt");
@@ -46,6 +47,24 @@ int main(){
     }
 
     std::cout << "Answer part 1: " << maxSum;
+
+    // Part 2
+    int maxSumP2[3] = {0, 0, 0};
+    // get elf with maximum calories
+    for(auto& i: Elves) {
+        int myElfSum = 0;
+        for (const auto& j: i) {
+            myElfSum +=j;
+        }
+
+        // find idx with min maxSum
+        int idx = maxSumP2[0] <= maxSumP2[1] ? 0 : ((maxSumP2[1] <= maxSumP2[2]) ? 1 : 2);
+        if(myElfSum > maxSumP2[idx]) {
+            maxSumP2[idx] = myElfSum;
+        }
+    }
+
+    std::cout << "Answer part 2: " << maxSumP2[0] + maxSumP2[1] + maxSumP2[2];
 
     return 0;
 }
