@@ -46,19 +46,58 @@ int main() {
     f.open("inputs/d3p1.txt");
     #endif
 
+    // Part 1
     queue<char> duplicateItems;
-    int prioSum = 0;
-    for(std::string line; std::getline(f, line); )
+    int prioSumP1 = 0;
+    for(string line; getline(f, line); )
     {
         char c = checkRucksack(line);
         duplicateItems.push(c);
-        prioSum += getPriority(c);
+        prioSumP1 += getPriority(c);
         #if DBG 
             cout << c << " in line " << line << endl; 
         #endif
     }
+    cout << "Answer part 1: " << prioSumP1 << endl;
+    f.close();
 
-    cout << "Answer part 1: " << prioSum << endl;
+    // Part 2
+    #if DBG
+    f.open("inputs/d3p1_ex.txt");
+    #else
+    f.open("inputs/d3p1.txt");
+    #endif
+    int prioSumP2 = 0;
+    int currentGroup = 0;
+    int doneGroup = 0;
+    for(string l1; getline(f, l1); )
+    {
+        string l2, l3;
+        getline(f, l2);
+        getline(f, l3);
+        currentGroup +=1;
+        #if DBG 
+            cout << "Lines: " << l1 << " " << l2 << " " << l3 << endl; 
+        #endif
+        char c;
+        for(int i = 0; i < l3.size(); i++)
+        {
+            if(l2.find(l3[i]) != string::npos && l2.find(l3[i]) != -1)
+            {
+                if(l1.find(l3[i]) != string::npos && l1.find(l3[i]) != -1)
+                {
+                    if(currentGroup != doneGroup)
+                    {
+                        c = l3[i];
+                        prioSumP2 += getPriority(c);
+                        doneGroup = currentGroup;
+                    }
+                }
+            }
+        }
+    }
+
+    cout << "Answer part 2: " << prioSumP2 << endl;
     f.close();
     return 0;
 }
