@@ -41,6 +41,22 @@ int checkContainment(pair<vector<int>, vector<int>> p)
     return 0;
 }
 
+int checkPartialContainment(pair<vector<int>, vector<int>> p)
+{
+    int rVal = 0;
+    for(auto i: get<0>(p))
+    {
+        for(auto j: get<1>(p))
+        {
+            if(i == j)
+            {
+                rVal = 1;
+            }
+        }
+    }
+    return rVal;
+}
+
 int main() {
     cout << "Start" << endl;
     std::ifstream f;
@@ -50,8 +66,9 @@ int main() {
     f.open("inputs/d4p1.txt");
     #endif
 
-    // Part 1
+    // Part 1 and 2
     int sumOfFullyContainedSets = 0;
+    int sumOfPartialContainedSets = 0;
     for(string line; getline(f, line); )
     {
         pair<vector<int>, vector<int>> p = interpretLine(line);
@@ -64,9 +81,11 @@ int main() {
             cout << endl;
         #endif
         sumOfFullyContainedSets += checkContainment(p);
+        sumOfPartialContainedSets += checkPartialContainment(p);
     }
     
     cout << "Answer part 1: " << sumOfFullyContainedSets << endl;
+    cout << "Answer part 2: " << sumOfPartialContainedSets << endl;
     f.close();
     return 0;
 }
