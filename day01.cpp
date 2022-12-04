@@ -65,7 +65,7 @@ int main() {
     }
 
     std::cout << "Answer part 2: " << maxSumP2[0] + maxSumP2[1] + maxSumP2[2];
-
+    f.close();
     return 0;
 }
 
