@@ -111,7 +111,7 @@ int main() {
         int from = line.find("from");
         int to   = line.find("to");
         int amount = stoi(line.substr(move+5, from - (move+5)));
-        int stackFrom = stoi(line.substr(from+5, to - (from+56))) -1;
+        int stackFrom = stoi(line.substr(from+5, to - (from+5))) -1;
         int stackTo = stoi(line.substr(to+2, line.size() - (to+2))) - 1;
         //printSizes(stacks, nrOfStacks);
         moveCrane9000(stacks[stackFrom], stacks[stackTo], amount);
