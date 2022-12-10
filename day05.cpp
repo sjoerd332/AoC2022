@@ -21,15 +21,30 @@ void printTops(stack<char>* stacks, int size)
     {
         cout << stacks[i].top();
     }
+    cout << endl;
 }
 
-void moveCrane(stack<char> &fromStack, stack<char> &toStack, int amountOfCrates)
+void moveCrane9000(stack<char> &fromStack, stack<char> &toStack, int amountOfCrates)
 {
     for(int i = 0; i < amountOfCrates; i++)
     {
         char c = fromStack.top();
         toStack.push(c);
         fromStack.pop();
+    }
+}
+
+void moveCrane9001(stack<char> &fromStack, stack<char> &toStack, const int amountOfCrates)
+{
+    char c[amountOfCrates];
+    for(int i = 0; i < amountOfCrates; i++)
+    {
+        c[i] = fromStack.top();
+        fromStack.pop();
+    }
+    for(int i = amountOfCrates-1; i >=0; i--)
+    {
+        toStack.push(c[i]);
     }
 }
 
@@ -45,7 +60,7 @@ int main() {
     int nrOfStacks = 0;
     int maxInputStackHeight = 0;
     string inputStacks;
-    // Part 1
+    // Part 1 and 2
     // partially read input
     for(string line; getline(f, line); )
     {
@@ -80,6 +95,11 @@ int main() {
             stacks[stackNr].push(c);
         }
     }
+    stack<char> stacksP2[nrOfStacks];
+    for(int i = 0; i < nrOfStacks; i++)
+    {
+        stacksP2[i] = stacks[i];
+    }
 
     // read empty line
     string line; getline(f, line);
@@ -94,12 +114,14 @@ int main() {
         int stackFrom = stoi(line.substr(from+5, to - (from+56))) -1;
         int stackTo = stoi(line.substr(to+2, line.size() - (to+2))) - 1;
         //printSizes(stacks, nrOfStacks);
-        moveCrane(stacks[stackFrom], stacks[stackTo], amount);
+        moveCrane9000(stacks[stackFrom], stacks[stackTo], amount);
+        moveCrane9001(stacksP2[stackFrom], stacksP2[stackTo], amount);
     }
 
     cout << "Answer part 1: ";
     printTops(stacks, nrOfStacks);
-    cout << endl;
+    cout << "Answer part 2: ";
+    printTops(stacksP2, nrOfStacks);
     f.close();
     return 0;
 }
