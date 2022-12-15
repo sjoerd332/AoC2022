@@ -10,40 +10,43 @@ using namespace std;
 typedef enum{
     fileType,
     dirType
-} memoryContent;
+} memoryContentType;
 
-struct File
+struct MemoryContent
 {
     string name;
     int size;
-    const memoryContent type;
-    File(string n, int s=0, memoryContent t = fileType) : name(n), size(s), type(t) {}
-};
-
-struct Dir : File
-{
-    vector<File> content;
-    Dir(string n) : File(n, dirType) {}
+    const memoryContentType type;
+    vector<MemoryContent> content;
+    MemoryContent(string n, memoryContentType t, int s=0) : name(n), size(s), type(t) {}
 };
 
 class Device 
 {
     public:
-    Device() : memory("/") {}
+    Device() : memory("/", dirType) {}
 
     const string getCwdString(vector<string> absCwd)
     {
         string cwdTotal;
+        //cout << "cwd string: ";
         for(int i = 0; i < cwd.size(); i++)
         {
             cwdTotal += cwd[i];
+            //cout << cwd[i] << "+";
         }
+        //cout << endl;
         return cwdTotal;
     }
 
-    const int getNameIdx(Dir* dir, string name)
+    const int getNameIdx(MemoryContent* dir, string name)
     {
         int idx = 0;
+        if(dir->content.size() == 0)
+        {
+            cout << "searching in empty dir" << endl;
+            return idx;
+        }
         for(int i = 0; i < dir->content.size(); i++)
         {
             if(dir->content[i].name == name)
@@ -53,29 +56,40 @@ class Device
         return idx;
     }
 
-    Dir* getDir(vector<string> absCwd)
+    MemoryContent* getDir(vector<string> absCwd)
     {
-        Dir* myRetDir = nullptr;
-        Dir* mySrcDir = &memory;
+        MemoryContent* mySrcDir = &memory;
+        if(absCwd.size() == 1)
+            return &memory;
         for(int i = 0; i < absCwd.size()-1; i++)
         {
+            //cout << "Request: " << absCwd[i]  << " searching in: " << mySrcDir->name << endl;
             if(mySrcDir->name == absCwd[i] && mySrcDir->type == dirType)
             {
-                mySrcDir = static_cast<Dir*>(&mySrcDir->content[getNameIdx(mySrcDir, absCwd[i+1])]);
+                mySrcDir = &mySrcDir->content[getNameIdx(mySrcDir, absCwd[i+1])];
             }
             else
-                cout << "Cannot get dir" << getCwdString(absCwd) << endl;
+            {
+                cout << "Cannot get dir: " << getCwdString(absCwd) << endl;
                 return nullptr;
+            }
         }
-        return myRetDir;
+        return mySrcDir;
     }
 
-    const bool in(const Dir* dir, const string name)
+    const MemoryContent* getDirSafe(vector<string> absCwd)
+    {
+        return getDir(absCwd);
+    }
+
+    const bool in(const MemoryContent* dir, const string name)
     {
         bool found = false;
         if(dir == nullptr)
+        {
             cout << "nullptr dir found!" << endl;
             return found;
+        }
         for(int i = 0; i < dir->content.size(); i++)
         {
             if(dir->content[i].name == name)
@@ -99,9 +113,11 @@ class Device
             }
             else
             {
+                cout << "Finding " << arg << " in " << getCwdString(cwd) << endl;
                 if(in(getDir(cwd), arg))
                 {
-                    cwd.push_back(arg);
+                    cwd.push_back(string(arg));
+                    cout << "cd'ed to: " << getCwdString(cwd) << endl;
                 }
                 else
                 {
@@ -111,17 +127,14 @@ class Device
         }
         else if(cmd == "ls")
         {
-            //appendMemory()
-            // for content
-            //getDir(cwd)->content.push_back(
             while(arg.size() > 0)
             {
                 string line;
-                cout << line << endl;
                 if(arg.find('\n') != string::npos)
                 {
                     line = arg.substr(0, arg.find('\n'));
-                    arg = arg.substr(arg.find('\n'), arg.size() - arg.find('\n'));
+                    arg = arg.substr(arg.find('\n')+1, arg.size() - arg.find('\n')-1);
+                    cout << line << endl;
                 }
                 else
                 {
@@ -134,8 +147,8 @@ class Device
                     string dname = line.substr(4, line.size()-4);
                     if(!in(getDir(cwd), dname))
                     {
-                        Dir* myDir = getDir(cwd);
-                        myDir->content.push_back(Dir(dname));
+                        MemoryContent* myDir = getDir(cwd);
+                        myDir->content.push_back(MemoryContent(dname, dirType));
                     }
                     else
                     {
@@ -145,12 +158,13 @@ class Device
                 // found a file, add to memory
                 else
                 {
-                    string fname = line.substr(line.find(' '), line.size()-line.find(' '));
+                    string fname = line.substr(line.find(' ')+1, line.size()-line.find(' ')-1);
                     int s = stoi(line.substr(0, line.find(' ')));
+                    cout << fname << " - file with size: " << s << endl;
                     if(!in(getDir(cwd), fname))
                     {
-                        Dir* myDir = getDir(cwd);
-                        myDir->content.push_back(File(fname, s));
+                        MemoryContent* myDir = getDir(cwd);
+                        myDir->content.push_back(MemoryContent(fname, fileType, s));
                     }
                     else
                     {
@@ -159,7 +173,7 @@ class Device
                     // also trace back cwd to add new file to all dir sizes
                     for(int i = 0; i < cwd.size(); i++)
                     {
-                        Dir* myDir = getDir(cwd);
+                        MemoryContent* myDir = getDir(cwd);
                         myDir->size += s;
                     }
                 }
@@ -171,8 +185,35 @@ class Device
         }
     }
 
+    int sumSmallDirSizes(int maxSize = 100000)
+    {
+        int sum = 0;
+        bool traversedContent = false;
+        int depth = 0;
+        int idx = 0;
+        MemoryContent* d = &memory;
+        while(traversedContent == false)
+        {
+            if(d->size <= maxSize)
+            {
+                 sum += d->size();
+            }
+        }
+
+
+
+        for(int i = 0; i < memory.content.size(); i++)
+        {
+            if(memory.content[i].size <= maxSize)
+            {
+
+            }
+        }
+        return sum;
+    }
+
     private:
-    Dir memory;
+    MemoryContent memory;
     vector<string> cwd;
 };
 
@@ -217,8 +258,9 @@ int main() {
             arg.append("\n");
         }
     }
+    d.processCommand(cmd,arg);
     
-    cout << "Answer part 1: " << endl;
+    cout << "Answer part 1: " << d.sumSmallDirSizes() << endl;
     f.close();
     return 0;
 }
