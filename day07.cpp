@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define DBG 1
+#define DBG 0
 
 typedef enum{
     fileType,
@@ -18,13 +18,14 @@ struct MemoryContent
     int size;
     const memoryContentType type;
     vector<MemoryContent> content;
-    MemoryContent(string n, memoryContentType t, int s=0) : name(n), size(s), type(t) {}
+    MemoryContent* parent;
+    MemoryContent(string n, memoryContentType t, int s, MemoryContent* p) : name(n), size(s), type(t), parent(p) {}
 };
 
 class Device 
 {
     public:
-    Device() : memory("/", dirType) {}
+    Device() : memory("/", dirType, 0, nullptr) {}
 
     const string getCwdString(vector<string> absCwd)
     {
@@ -148,7 +149,7 @@ class Device
                     if(!in(getDir(cwd), dname))
                     {
                         MemoryContent* myDir = getDir(cwd);
-                        myDir->content.push_back(MemoryContent(dname, dirType));
+                        myDir->content.push_back(MemoryContent(dname, dirType, 0, myDir));
                     }
                     else
                     {
@@ -164,17 +165,19 @@ class Device
                     if(!in(getDir(cwd), fname))
                     {
                         MemoryContent* myDir = getDir(cwd);
-                        myDir->content.push_back(MemoryContent(fname, fileType, s));
+                        myDir->content.push_back(MemoryContent(fname, fileType, s,myDir));
                     }
                     else
                     {
                         cout << "File already present in memory " << fname << endl; 
                     }
                     // also trace back cwd to add new file to all dir sizes
+                    MemoryContent* myDir = getDir(cwd);
                     for(int i = 0; i < cwd.size(); i++)
                     {
-                        MemoryContent* myDir = getDir(cwd);
                         myDir->size += s;
+                        if(myDir->parent != nullptr)
+                            myDir = myDir->parent;
                     }
                 }
             }
@@ -185,31 +188,66 @@ class Device
         }
     }
 
-    int sumSmallDirSizes(int maxSize = 100000)
+    int sumFolder(MemoryContent* d, int maxSize=100000)
     {
         int sum = 0;
-        bool traversedContent = false;
-        int depth = 0;
-        int idx = 0;
-        MemoryContent* d = &memory;
-        while(traversedContent == false)
+        if(d->content.size() >0)
         {
-            if(d->size <= maxSize)
+            for(int i = 0; i < d->content.size(); i++)
             {
-                 sum += d->size();
+                if(d->content[i].type == dirType)
+                {
+                    sum += sumFolder(&d->content[i], maxSize);
+                }
             }
         }
-
-
-
-        for(int i = 0; i < memory.content.size(); i++)
+        cout << "Dir " << d->name << " with size " << d->size << endl;
+        if(d->type == dirType && d->size <= maxSize)
         {
-            if(memory.content[i].size <= maxSize)
-            {
-
-            }
+            sum += d->size;
         }
         return sum;
+    }
+
+    int sumSmallDirSizes(int maxSize = 100000)
+    {
+        return sumFolder(&memory);
+        // bool traversedContent = false;
+        // int currentDepth = 0;
+        // vector<int> idx;
+        // MemoryContent* d = &memory;
+        // while(traversedContent == false)
+        // {
+        //     // count current dir size
+        //     if(d->size <= maxSize)
+        //     {
+        //          sum += d->size;
+        //     }
+        //     // go 1 level deeper
+        //     if(d->content.size() > 0)
+        //     {
+        //         // new level
+        //         currentDepth++;
+        //         if(currentDepth > idx.size())
+        //         {
+        //             idx.push_back(0);
+        //         }
+        //         // next item on same level
+
+        //         // no items left on this level, go 1 
+                
+        //     }
+        //     // go 1 level up
+        //     else
+        //     {
+        //         d = d->parent;
+        //     }
+        //     if(d == nullptr)
+        //     {
+        //         traversedContent = true;
+        //     }
+        // }
+        // return sum;
     }
 
     private:
@@ -259,8 +297,8 @@ int main() {
         }
     }
     d.processCommand(cmd,arg);
-    
-    cout << "Answer part 1: " << d.sumSmallDirSizes() << endl;
+    int ans1 = d.sumSmallDirSizes();
+    cout << "Answer part 1: " << ans1 << endl;
     f.close();
     return 0;
 }
