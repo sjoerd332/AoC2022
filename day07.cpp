@@ -188,7 +188,7 @@ class Device
         }
     }
 
-    int sumFolder(MemoryContent* d, int maxSize=100000)
+    int sumFolder(MemoryContent* d, int maxSize=100000, int minSize = 0)
     {
         int sum = 0;
         if(d->content.size() >0)
@@ -197,12 +197,12 @@ class Device
             {
                 if(d->content[i].type == dirType)
                 {
-                    sum += sumFolder(&d->content[i], maxSize);
+                    sum += sumFolder(&d->content[i], maxSize, minSize);
                 }
             }
         }
-        cout << "Dir " << d->name << " with size " << d->size << endl;
-        if(d->type == dirType && d->size <= maxSize)
+        //cout << "Dir " << d->name << " with size " << d->size << endl;
+        if(d->type == dirType && d->size <= maxSize && d->size >= minSize)
         {
             sum += d->size;
         }
@@ -211,43 +211,24 @@ class Device
 
     int sumSmallDirSizes(int maxSize = 100000)
     {
-        return sumFolder(&memory);
-        // bool traversedContent = false;
-        // int currentDepth = 0;
-        // vector<int> idx;
-        // MemoryContent* d = &memory;
-        // while(traversedContent == false)
-        // {
-        //     // count current dir size
-        //     if(d->size <= maxSize)
-        //     {
-        //          sum += d->size;
-        //     }
-        //     // go 1 level deeper
-        //     if(d->content.size() > 0)
-        //     {
-        //         // new level
-        //         currentDepth++;
-        //         if(currentDepth > idx.size())
-        //         {
-        //             idx.push_back(0);
-        //         }
-        //         // next item on same level
+        return sumFolder(&memory, maxSize, 0);
+    }
 
-        //         // no items left on this level, go 1 
-                
-        //     }
-        //     // go 1 level up
-        //     else
-        //     {
-        //         d = d->parent;
-        //     }
-        //     if(d == nullptr)
-        //     {
-        //         traversedContent = true;
-        //     }
-        // }
-        // return sum;
+    int getSmallestDirSize(int requiredSize)
+    {
+        int sum = 0;
+        int myMaxSize = requiredSize;
+        while(sum == 0)
+        {
+            sum = sumFolder(&memory, myMaxSize, requiredSize);
+            myMaxSize++;
+        }
+        return sum;
+    }
+
+    int getOccupiedSpace()
+    {
+        return memory.size;
     }
 
     private:
@@ -299,6 +280,14 @@ int main() {
     d.processCommand(cmd,arg);
     int ans1 = d.sumSmallDirSizes();
     cout << "Answer part 1: " << ans1 << endl;
+
+    // Part 2
+    const int memSize = 70'000'000;
+    const int FreeSpaceRequired = 30'000'000;
+    int currentFreeSize = memSize - d.getOccupiedSpace();
+    int spaceToBeFreed = FreeSpaceRequired - currentFreeSize;
+    int ans2 = d.getSmallestDirSize(spaceToBeFreed);
+    cout << "Answer part 2: " << ans2 << endl;
     f.close();
     return 0;
 }
