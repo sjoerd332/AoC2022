@@ -28,10 +28,10 @@ int main() {
     }
     f.close();
     f.open(fname);
-    const int heigth = h;
+    const int height = h;
     const int width = w;
-    int heigthMap[heigth][width], visibilityMap[heigth][width];
-    memset(&heigthMap, 0, sizeof(heigthMap));
+    int heightMap[height][width], visibilityMap[height][width];
+    memset(&heightMap, 0, sizeof(heightMap));
     memset(&visibilityMap, 0, sizeof(visibilityMap));
     h=0;
     // fill height map
@@ -40,26 +40,26 @@ int main() {
         for(int j = 0 ; j< line.size(); j++)
         {
             string c = line.substr(j,1);
-            heigthMap[h][j] = stoi(c, 0);
+            heightMap[h][j] = stoi(c, 0);
         }
         h++;
     }
     // fill visibility map
-    for(int i = 0; i < heigth; i++)
+    for(int i = 0; i < height; i++)
     {
         for(int j = 0; j < width; j++)
         {
             // for each position
             bool stillVisible = true;
             // fill border
-            if(i == 0 || j == 0 || i == heigth-1 || j == width-1)
+            if(i == 0 || j == 0 || i == height-1 || j == width-1)
             {
                 visibilityMap[i][j] = 1;
             }
             // visibility from top
             for(int k = 0; k < i; k++)
             {
-                if(heigthMap[i][j] <= heigthMap[k][j])
+                if(heightMap[i][j] <= heightMap[k][j])
                 {
                     stillVisible = false;
                 }
@@ -70,9 +70,9 @@ int main() {
             }
             stillVisible = true;
             // visibility from bottom
-            for(int k = heigth-1; k > i; k--)
+            for(int k = height-1; k > i; k--)
             {
-                if(heigthMap[i][j] <= heigthMap[k][j])
+                if(heightMap[i][j] <= heightMap[k][j])
                 {
                     stillVisible = false;
                 }
@@ -85,7 +85,7 @@ int main() {
             // visibility from left
             for(int k = 0; k < j; k++)
             {
-                if(heigthMap[i][j] <= heigthMap[i][k])
+                if(heightMap[i][j] <= heightMap[i][k])
                 {
                     stillVisible = false;
                 }
@@ -98,7 +98,7 @@ int main() {
             // visibility from right
             for(int k = width-1; k > j; k--)
             {
-                if(heigthMap[i][j] <= heigthMap[i][k])
+                if(heightMap[i][j] <= heightMap[i][k])
                 {
                     stillVisible = false;
                 }
@@ -111,7 +111,7 @@ int main() {
     }
     // count visibility map entries
     int ans1 = 0;
-    for(int i = 0; i < heigth; i++)
+    for(int i = 0; i < height; i++)
     {
         for(int j = 0; j < width; j++)
         {
@@ -121,6 +121,47 @@ int main() {
     }
 
     cout << "Answer part 1: " << ans1 << endl;
+
+    // Part 2
+    // fill scenic map
+    int scenicMap[height][width];
+    memset(&scenicMap, 0, sizeof(scenicMap));
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            int l=1,r=1,u=1,d=1;
+            while(heightMap[i][j] > heightMap[i][j-l] && j-l >= 1)
+            {
+                l++;
+            }
+            while(heightMap[i][j] > heightMap[i][j+r] && j+r <= width-2)
+            {
+                r++;
+            }
+            while(heightMap[i][j] > heightMap[i-u][j] && i-u >= 1)
+            {
+                u++;
+            }
+            while(heightMap[i][j] > heightMap[i+d][j] && i+d <= height-2)
+            {
+                d++;
+            }
+            scenicMap[i][j] = l*r*u*d;
+        }
+    }
+    // find maximum
+    int max = 0;
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            if(scenicMap[i][j] > max)
+                max = scenicMap[i][j];
+        }
+    }
+    cout << "Answer part 2: " << max << endl;
+
     f.close();
     return 0;
 }
