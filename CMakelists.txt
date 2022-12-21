@@ -1,7 +1,8 @@
 project(AoC2022)
 cmake_minimum_required(VERSION 3.0)
 
-set (CMAKE_CXX_FLAGS "-g")
+set(CMAKE_CXX_FLAGS "-g")
+set(CMAKE_CXX_STANDARD 11)
 
 add_executable(day01 day01.cpp)
 add_executable(day02 day02.cpp)
@@ -9,6 +10,9 @@ add_executable(day03 day03.cpp)
 add_executable(day04 day04.cpp)
 add_executable(day05 day05.cpp)
 add_executable(day06 day06.cpp)
+set(CMAKE_CXX_STANDARD 14)
 add_executable(day07 day07.cpp)
+set(CMAKE_CXX_STANDARD 11)
 add_executable(day08 day08.cpp)
+add_executable(day09 day09.cpp)
 
