@@ -44,73 +44,95 @@ struct RopePiece {
         {
             case 'U':
                 head.y++;
-                // straight up
-                if(head.x-tail.x == 0 && head.y-tail.y > 1)
-                {
-                    tail.y++;
-                }
-                // lx == 1 or -1 (logically)
-                else if(head.y-tail.y > 1)
-                {
-                    tail.y++;
-                    tail.x = head.x;
-                }
-                // no tail move
-                else {}
                 break;
             case 'D':
                 head.y--;
-                // straight down
-                if(head.x-tail.x == 0 && head.y-tail.y < -1)
-                {
-                    tail.y--;
-                }
-                // lx == 1 or -1 (logically)
-                else if(head.y-tail.y < -1)
-                {
-                    tail.y--;
-                    tail.x = head.x;
-                }
-                // no tail move
-                else {}
                 break;
             case 'L':
                 head.x--;
-                // left straight
-                if(head.y-tail.y == 0 && head.x-tail.x < -1)
-                {
-                    tail.x--;
-                }
-                // ly == 1 or -1 (logically)
-                else if(head.x-tail.x < -1)
-                {
-                    tail.x--;
-                    tail.y = head.y;
-                }
-                // no tail move
-                else {}
                 break;
             case 'R':
                 head.x++;
-                // right straight
-                if(head.y-tail.y == 0 && head.x-tail.x > 1)
-                {
-                    tail.x++;
-                }
-                // ly == 1 or -1 (logically)
-                else if(head.x-tail.x > 1)
-                {
-                    tail.x++;
-                    tail.y = head.y;
-                }
-                // no tail move
-                else {}
                 break;
             default:
                 break;
         };
+        if(dir != 'y')
+        {
+        // straight up
+        if(head.x-tail.x == 0 && head.y-tail.y > 1)
+        {
+            tail.y++;
+        }
+        // lx == 1 or -1 (logically)
+        else if(head.y-tail.y > 1)
+        {
+            tail.y++;
+            //tail.x = head.x;
+            head.x > tail.x ? tail.x++ : tail.x--;
+        }
+        // straight down
+        else if(head.x-tail.x == 0 && head.y-tail.y < -1)
+        {
+            tail.y--;
+        }
+        // lx == 1 or -1 (logically)
+        else if(head.y-tail.y < -1)
+        {
+            tail.y--;
+            //tail.x = head.x;
+            head.x > tail.x ? tail.x++ : tail.x--;
+        }
+        // left straight
+        else if(head.y-tail.y == 0 && head.x-tail.x < -1)
+        {
+            tail.x--;
+        }
+        // ly == 1 or -1 (logically)
+        else if(head.x-tail.x < -1)
+        {
+            tail.x--;
+            //tail.y = head.y;
+            head.y > tail.y ? tail.y++ : tail.y--;
+        }
+        // right straight
+        else if(head.y-tail.y == 0 && head.x-tail.x > 1)
+        {
+            tail.x++;
+        }
+        // ly == 1 or -1 (logically)
+        else if(head.x-tail.x > 1)
+        {
+            tail.x++;
+            //tail.y = head.y;
+            head.y > tail.y ? tail.y++ : tail.y--;
+        }
+        // no tail move
+        else {}
+        }
         // Keep up the tail trail, fill the stack
         tailTrail.push_back(tail);
+    }
+
+    Pos getHead()
+    {
+        return head;
+    }
+
+    Pos getTail()
+    {
+        return tail;
+    }
+
+    void moveLinked(Pos p)
+    {
+        if(head == p)
+            this->move('y');
+        else
+        {
+            head = p;
+            this->move('x');
+        }
     }
 
     int getUniqueTailPositions()
@@ -148,11 +170,14 @@ struct RopePiece {
 int main() {
     cout << "Start" << endl;
     std::ifstream f;
-    #if DBG
-    f.open("inputs/d9p1_ex.txt");
+    #if DBG == 1
+    string fname = "inputs/d9p1_ex.txt";
+    #elif DBG == 2
+    string fname = "inputs/d9p2_ex.txt";
     #else
-    f.open("inputs/d9p1.txt");
+    string fname = "inputs/d9p1.txt";
     #endif
+    f.open(fname);
 
     // Part 1
     RopePiece p;
@@ -171,6 +196,35 @@ int main() {
     //p.printUniquePositions();
 
     cout << "Answer part 1: " << p.getUniqueTailPositions() << endl;
+    f.close();
+
+    // Part 2
+    f.open(fname);
+    const size_t len = 10-1;
+    RopePiece p2[len];
+    for(string line; getline(f, line); )
+    {
+        size_t spacePos = line.find(' ');
+        int moves = stoi(line.substr(spacePos+1, line.size()-spacePos+1), 0);
+        char dir = line[0];
+        while(moves > 0)
+        {
+            p2[0].move(dir);
+            for(int i = 1; i < len; i++)
+            {
+                p2[i].moveLinked(p2[i-1].getTail());
+            }
+            moves--;
+        }
+        // cout << "position after move: " << endl;
+        // cout << p2[0].getHead().x << " " << p2[0].getHead().y << endl;
+        // for(int i = 0; i < len; i++)
+        // {
+        //     cout << p2[i].getTail().x << " " << p2[i].getTail().y << endl;
+        // }
+    }
+    // p2[len-1].printUniquePositions();
+    cout << "Answer part 2: " << p2[len-1].getUniqueTailPositions() << endl;
     f.close();
     return 0;
 }
