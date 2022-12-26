@@ -5,7 +5,7 @@
         "name": "C/C++: g++.exe build and debug active file",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${workspaceFolder}\\build\\day09.exe",
+        "program": "${workspaceFolder}\\build\\day10.exe",
         "cwd": "${workspaceFolder}",
         "stopAtEntry": false,
         "targetArchitecture": "x64",
