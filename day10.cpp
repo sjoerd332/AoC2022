@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <cstring>
 
 using namespace std;
 
@@ -59,21 +60,60 @@ class CPU
     int theArgument;
 };
 
+class CRT
+{
+    public:
+    CRT(CPU* aCpu) : theCpu(aCpu), thePixelCnt(0)
+    {
+        memset(theScreen, '-', sizeof(theScreen));
+    }
+
+    void draw()
+    {
+        int x = thePixelCnt % theWidth;
+        int y = thePixelCnt / theWidth;
+        int xSprite = theCpu->getRegX() % theWidth;
+        int ySprite = theCpu->getRegX() / theWidth;
+        bool isSprite = ((xSprite-x == -1 || xSprite-x == 0 || xSprite-x == 1)); // && y == ySprite, if y would also be relevant
+        if(x >= 0 && x < theWidth && y >= 0 && y < theHeight)
+        {
+            if(isSprite)
+                theScreen[x][y] = '#';
+            else
+                theScreen[x][y] = '.';
+        }
+        thePixelCnt++;
+        if(thePixelCnt >= theWidth*theHeight)
+            thePixelCnt = 0;
+    }
+
+    char getPixel(int x, int y)
+    {
+        if(x >= 0 && x < theWidth && y >= 0 && y < theHeight)
+            return theScreen[x][y];
+        else
+            return 0;
+    }
+
+    static const int theWidth = 40;
+    static const int theHeight = 6;
+
+    private:
+    CPU* theCpu;
+    int thePixelCnt;
+    char theScreen[theWidth][theHeight];
+};
+
 class ClockCircuit
 {
     public:
-    ClockCircuit(CPU* aCpu) : cycleCnt(0)
-    {
-        setCpu(aCpu);
-    }
-
-    void setCpu(CPU* aCpu)
-    {
-        theCpu = aCpu;
-    }
+    ClockCircuit(CPU* aCpu, CRT* aCrt) : cycleCnt(0), theCpu(aCpu), theCrt(aCrt)
+    {}
 
     void cycle()
     {
+        if(theCrt != nullptr)
+            theCrt->draw();
         if(theCpu != nullptr)
             theCpu->doInstruction();
         cycleCnt++;
@@ -87,12 +127,13 @@ class ClockCircuit
     private:
     int cycleCnt;
     CPU* theCpu;
+    CRT* theCrt;
 };
 
 class Device
 {
     public:
-    Device() : programCnt(0), theClk(&theCpu)
+    Device() : programCnt(0), theClk(&theCpu, &theCrt), theCrt(&theCpu)
     {
     }
 
@@ -126,11 +167,21 @@ class Device
             retVal = theCpu.getRegX();
         else if(name == "cycleCnt")
             retVal = theClk.getCycle();
+        else if(name == "CRT width")
+            retVal = theCrt.theWidth;
+        else if(name == "CRT height")
+            retVal = theCrt.theHeight;
         return retVal;
+    }
+
+    char getPixel(int x, int y)
+    {
+        return theCrt.getPixel(x,y);
     }
 
     private:
     CPU theCpu;
+    CRT theCrt;
     ClockCircuit theClk;
     vector<pair<string,int>> theProgram;
     int programCnt;
@@ -172,6 +223,30 @@ class DeviceAnalysis
         d.setProgram(aProgram);
     }
 
+    void printCrt()
+    {
+        const int w = d.getRegister("CRT width");
+        const int h = d.getRegister("CRT height");
+        const int nrOfP = w*h;
+        const int nrOfLetters = 8;
+        int cycleCnt = d.getRegister("cycleCnt");
+        while(cycleCnt % nrOfP != 0)
+        {
+            d.run(1);
+            cycleCnt = d.getRegister("cycleCnt");
+        }
+        for(int i = 0; i < h; i++)
+        {
+            for(int j = 0; j < w; j++)
+            {
+                if(j % (w / nrOfLetters) == 0 && j > 0)
+                    cout << "\t";
+                cout << d.getPixel(j,i);
+            }
+            cout << endl;
+        }
+    }
+
     private:
     Device d;
     vector<int> theExaminationPoints;
@@ -204,6 +279,11 @@ int main() {
     int ans1 = da.getSignalStrength(DeviceAnalysis::Ap::during);
     
     cout << "Answer part 1: " << ans1 << endl;
+
+    // Part 2
+    cout << "Answer part 2: " << endl;
+    da.printCrt();
+
     f.close();
     return 0;
 }
