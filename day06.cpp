@@ -53,7 +53,7 @@ int main() {
     #endif
 
     // Part 1
-    string line; 
+    string line;
     getline(f, line);
     auto ans1 = getStartPos(line);
     cout << "Answer part 1: " << ans1 <<  endl;

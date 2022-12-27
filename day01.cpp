@@ -19,7 +19,7 @@ int main() {
     std::ifstream f;
     //f.open("inputs/d1p1_ex.txt");
     f.open("inputs/d1p1.txt");
-    
+
     std::vector<std::list<int>> Elves;
     Elves.push_back(std::list<int>());
     for (std::string line; std::getline(f, line); ) {
@@ -34,7 +34,7 @@ int main() {
     }
 
     //printCalories(Elves);
-    
+
     int maxSum = 0;
     // get elf with maximum calories
     for(auto& i: Elves) {
@@ -42,7 +42,7 @@ int main() {
         for (const auto& j: i) {
             myElfSum +=j;
         }
-        if(myElfSum > maxSum) 
+        if(myElfSum > maxSum)
             maxSum = myElfSum;
     }
 

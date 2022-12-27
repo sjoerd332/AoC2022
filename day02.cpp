@@ -7,7 +7,7 @@ using namespace std;
 int gameP1(char theirInput, char yourInput)
 {
     int score = 0;
-    switch(yourInput) { 
+    switch(yourInput) {
     case 'X': score += 1; break;
     case 'Y': score += 2; break;
     case 'Z': score += 3; break;
@@ -38,7 +38,7 @@ int gameP2(char theirInput, char gameResult)
         // draw
         case 'Y': yourInput = theirInput; break;
         // you loose
-        case 'X': 
+        case 'X':
             if(theirInput == 'A')
                 yourInput = 'C';
             else if(theirInput == 'B')
@@ -77,10 +77,10 @@ int main() {
         {
             if(i == 0)
                 myScore +=gameP1(line[0],line[2]);
-            else 
+            else
                 myScore +=gameP2(line[0],line[2]);
         }
-        
+
         cout << "Answer part " << i +1 << ": " << myScore << endl;
         f.close();
     }

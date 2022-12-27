@@ -22,7 +22,7 @@ struct MemoryContent
     MemoryContent(string n, memoryContentType t, int s, MemoryContent* p) : name(n), size(s), type(t), parent(p) {}
 };
 
-class Device 
+class Device
 {
     public:
     Device() : memory("/", dirType, 0, nullptr) {}
@@ -153,7 +153,7 @@ class Device
                     }
                     else
                     {
-                        cout << "Directory already present in memory " << line.substr(4) << endl; 
+                        cout << "Directory already present in memory " << line.substr(4) << endl;
                     }
                 }
                 // found a file, add to memory
@@ -169,7 +169,7 @@ class Device
                     }
                     else
                     {
-                        cout << "File already present in memory " << fname << endl; 
+                        cout << "File already present in memory " << fname << endl;
                     }
                     // also trace back cwd to add new file to all dir sizes
                     MemoryContent* myDir = getDir(cwd);

@@ -20,7 +20,7 @@ int main() {
     {
 
     }
-    
+
     cout << "Answer part 1: " << endl;
     f.close();
     return 0;

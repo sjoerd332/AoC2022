@@ -52,7 +52,7 @@ class CPU
     {
         return reg_x;
     }
-    
+
     private:
     int reg_x = 1;
     int currentInstructionCycleNr = 0;
@@ -200,7 +200,7 @@ class DeviceAnalysis
         after = 0,
         during = 1
     } Ap;
-    
+
     int getSignalStrength(Ap ap)
     {
         vector<int> signalStrengths;
@@ -230,11 +230,13 @@ class DeviceAnalysis
         const int nrOfP = w*h;
         const int nrOfLetters = 8;
         int cycleCnt = d.getRegister("cycleCnt");
+        // Get a full screen
         while(cycleCnt % nrOfP != 0)
         {
             d.run(1);
             cycleCnt = d.getRegister("cycleCnt");
         }
+        // Print all pixels of the CRT with tabs inbetween
         for(int i = 0; i < h; i++)
         {
             for(int j = 0; j < w; j++)
@@ -277,7 +279,7 @@ int main() {
     vector<int> exampinationCycles = {20, 60, 100, 140, 180, 220};
     da.setExamination(exampinationCycles);
     int ans1 = da.getSignalStrength(DeviceAnalysis::Ap::during);
-    
+
     cout << "Answer part 1: " << ans1 << endl;
 
     // Part 2

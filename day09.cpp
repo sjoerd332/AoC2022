@@ -15,7 +15,7 @@ struct Pos {
     bool operator<(const Pos& other) const
     {
         // Simple: cannot sort uniquely.
-        //bool ret = x < other.x && y < other.y; 
+        //bool ret = x < other.x && y < other.y;
         // Other tactic:
         bool ret = x < other.x;
         // prioritize x over y
@@ -26,7 +26,7 @@ struct Pos {
 
     bool operator==(const Pos& other) const
     {
-        return x == other.x && y == other.y; 
+        return x == other.x && y == other.y;
     }
 };
 

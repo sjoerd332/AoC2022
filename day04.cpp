@@ -11,8 +11,8 @@ using namespace std;
 vector<int> getTaskSet(string s)
 {
     vector<int> taskSet;
-    for(int i = stoi(s.substr(0, s.find('-'))); 
-        i <= stoi(s.substr(s.find('-') + 1, s.size() - (s.find('-')))); 
+    for(int i = stoi(s.substr(0, s.find('-')));
+        i <= stoi(s.substr(s.find('-') + 1, s.size() - (s.find('-'))));
         i++)
     {
         taskSet.push_back(i);
@@ -83,7 +83,7 @@ int main() {
         sumOfFullyContainedSets += checkContainment(p);
         sumOfPartialContainedSets += checkPartialContainment(p);
     }
-    
+
     cout << "Answer part 1: " << sumOfFullyContainedSets << endl;
     cout << "Answer part 2: " << sumOfPartialContainedSets << endl;
     f.close();

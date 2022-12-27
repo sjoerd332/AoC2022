@@ -54,8 +54,8 @@ int main() {
         char c = checkRucksack(line);
         duplicateItems.push(c);
         prioSumP1 += getPriority(c);
-        #if DBG 
-            cout << c << " in line " << line << endl; 
+        #if DBG
+            cout << c << " in line " << line << endl;
         #endif
     }
     cout << "Answer part 1: " << prioSumP1 << endl;
@@ -76,8 +76,8 @@ int main() {
         getline(f, l2);
         getline(f, l3);
         currentGroup +=1;
-        #if DBG 
-            cout << "Lines: " << l1 << " " << l2 << " " << l3 << endl; 
+        #if DBG
+            cout << "Lines: " << l1 << " " << l2 << " " << l3 << endl;
         #endif
         char c;
         for(int i = 0; i < l3.size(); i++)
