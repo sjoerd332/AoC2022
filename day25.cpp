@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cmath>
 #include <array>
 #include <utility>
 #include <cstdint>
+#include <cinttypes>
 
 using namespace std;
 
@@ -12,9 +12,9 @@ using namespace std;
 
 typedef int64_t nrType;
 
-nrType pow(const int base, const int power)
+nrType pow(const int base, const nrType power)
 {
-    nrType val = (unsigned long long) 1;
+    nrType val = 1;
     for(int i = 0; i < power; i++)
     {
         val *= base;
@@ -22,10 +22,10 @@ nrType pow(const int base, const int power)
     return val;
 }
 
-// helper voor staartdeling, factorial voor 5 machten
+// Helper voor staartdeling, factorial voor 5 machten
 nrType f5(const int power)
 {
-    nrType ans = (unsigned long long) 0;
+    nrType ans = 0;
     for(int i = 0; i <= power; i++)
     {
         ans += ((nrType)2)*pow(5, i);
@@ -33,7 +33,7 @@ nrType f5(const int power)
     return ans;
 }
 
-// Alternative: staartdeling achtig
+// Staartdeling achtig
 string intToSnafu(const nrType iNumber)
 {
     nrType rest = iNumber;
@@ -42,12 +42,13 @@ string intToSnafu(const nrType iNumber)
         make_pair(1, '1'),
         make_pair(2, '2'),
         make_pair(-1, '-'),
-        make_pair(-2, '=')}; // order matters for iteration
+        make_pair(-2, '=')};
     int curExp = 0;
     nrType nrToSubtract = 0;
+    nrType minDif = 0;
     string retval = "";
     bool done = false;
-    while(abs(rest) > f5(curExp))
+    while(imaxabs(rest) > f5(curExp))
     {
         curExp++;
     }
@@ -55,23 +56,28 @@ string intToSnafu(const nrType iNumber)
     while(curExp > -1 || done == false)
     {
         nrToSubtract = 0;
-        bool subtracted  = false;
+        minDif = INT64_MAX;
+        char c = '0';
         for (const auto& m: values)
         {
-            const nrType nr = m.first * pow(5, curExp);
-            if(((rest >= 0 && (nr >= rest || m.first == 2)) || (rest < 0 && (nr <= rest || m.first == -2))) && subtracted == false)
+            const nrType nr = ((nrType)m.first) * pow(5, curExp);
+            if(imaxabs(rest - nr) < imaxabs(minDif))
             {
+                minDif = rest - nr;
                 nrToSubtract = nr;
-                retval += m.second;
-                subtracted = true;
+                c = m.second;
             }
         }
-        if(subtracted == false)
-        {
-            retval += values[0].second;
-        }
+        retval += c;
+
+        //cout << endl;
+        //cout << "Exponent: " << curExp << endl;
+        //cout << "From\t\t" << rest << endl;
+        //cout << "Subtract\t" << nrToSubtract << endl;
         rest -= nrToSubtract;
+        //cout << "Result\t\t" << rest << endl;
         curExp--;
+
         if(curExp == -1)
             done = true;
     }
@@ -130,7 +136,7 @@ int main() {
     {
         sum += SnafuToInt(line);
     }
-    //cout << "test: " << SnafuToInt("1=1") << endl;
+    //cout << "test: " << intToSnafu(SnafuToInt("2002")) << endl;
     cout << "Answer part 1: " << sum << " (sum), and in SNAFU: " << intToSnafu(sum) << endl;
     f.close();
     return 0;

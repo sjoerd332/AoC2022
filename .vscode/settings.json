@@ -47,6 +47,7 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "set": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "array": "cpp"
     }
 }
