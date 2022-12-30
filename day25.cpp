@@ -2,13 +2,14 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include <map>
+#include <array>
+#include <utility>
 
 using namespace std;
 
-#define DBG 1
+#define DBG 0
 
-int pow(int base, int power)
+int pow(const int base, const int power)
 {
     int val = 1;
     for(int i = 0; i < power; i++)
@@ -18,117 +19,64 @@ int pow(int base, int power)
     return val;
 }
 
-void borrow(string& s, const int sNumberOffset, int& nr)
-{
-    if(nr > pow(5, s.size()+sNumberOffset))
-    {
-        cout << "Larger remainder than extracted SNAFU" << endl;
-        s = "1" + s;
-    }
-    else
-    {
-        // nr = 20 would be 4*5, or 25 - 5
-        const size_t pos = s.size()-1;
-        if(s[pos] == '=')
-            s[pos] = '-';
-        else if(s[pos] == '-')
-            s[pos] = '0';
-        else if(s[pos] == '0')
-            s[pos] = '1';
-        else if(s[pos] == '1')
-            s[pos] = '2';
-        else if(s[pos] == '2')
-        {
-            string s2 = s.substr(0, pos);
-            borrow(s2, sNumberOffset + 1, nr);
-            s = s2;
-        }
-    }
-}
-
-string intToSnafu(const int iNumber)
-{
-    // check how many SNAFU symbols are required
-    int temp = iNumber;
-    int nrOfPosses = 0;
-    while(temp > 0)
-    {
-        nrOfPosses++;
-        temp /=5;
-    }
-    temp = iNumber;
-    int reconstructedNumber = 0;
-    string sNumber = "";
-    for(int i = nrOfPosses; i >0; i--)
-    {
-        int base = pow(5,i);
-        int div = (temp + 2*base) / base;
-        int rem = temp % base;
-        if(div == 4)
-        {
-            sNumber.append("2");
-            temp -= 2 * base;
-        }
-        else if(div == 3)
-        {
-            sNumber.append("1");
-            temp -= base;
-        }
-        else if(div == 2)
-        {
-            sNumber.append("0");
-        }
-        else if(div == 1)
-        {
-            sNumber.append("-");
-            temp = temp + base + 5*base;
-        }
-        else if(div == 0)
-        {
-            sNumber.append("=");
-            temp = temp + 2 * base + 5*base;
-        }
-        else
-        {
-            // Division was not possible, borrow at bigger nrs
-            borrow(sNumber, i+1, temp);
-        }
-    }
-
-    // if(temp !=0)
-    //     cout << temp << endl;
-    return sNumber;
-}
-
-// An alternative way of intToSNAFU would be to make a searching algorthm and check for the minimum difference (=0) via SNAFUtoInt
-
 // helper voor staartdeling, factorial voor 5 machten
-int f5(int power)
+int f5(const int power)
 {
     int ans = 0;
-    for(int i = 0; i < power; i++)
+    for(int i = 0; i <= power; i++)
     {
-
+        ans += 2*pow(5, i);
     }
     return ans;
 }
 
-// alternative: staartdeling
+// Alternative: staartdeling achtig
 string intToSnafu3(const int iNumber)
 {
-    int temp = iNumber;
-    map<const int, const char> values = {{-2, '='},{-1, '-'},{0, '0'},{1, '1'},{2, '2'}};
+    int rest = iNumber;
+    const array<pair<const int, const char>, 5> values = {
+        make_pair(0, '0'),
+        make_pair(1, '1'),
+        make_pair(2, '2'),
+        make_pair(-1, '-'),
+        make_pair(-2, '=')}; // order matters for iteration
     int maxExp = 0;
+    int curExp = 0;
+    int nrToSubtract = 0;
     string retval = "";
-    while(temp != 0)
+    bool done = false;
+    while(curExp > -1 || done == false)
     {
-        for(const auto& [key, value] : m)
+        nrToSubtract = 0;
+        if(abs(rest) > f5(curExp))
         {
-            if(temp
+            curExp++;
         }
+        else
+        {
+            bool subtracted  = false;
+            for (const auto& m: values)
+            {
+                const int nr = m.first * pow(5, curExp);
+                if(((rest >= 0 && (nr >= rest || m.first == 2)) || (rest < 0 && (nr <= rest || m.first == -2))) && subtracted == false)
+                {
+                    nrToSubtract = nr;
+                    retval += m.second;
+                    subtracted = true;
+                }
+            }
+            rest -= nrToSubtract;
+            curExp--;
+            if(curExp == -1)
+                done = true;
+        }
+        if(curExp > maxExp)
+            maxExp = curExp;
     }
+    if(rest != 0)
+            cout << "Error: rest is not zero: " << rest << endl;
     if(retval.size() == 0)
-        retval = values[0];
+        retval = values[0].second;
     return retval;
 }
 
